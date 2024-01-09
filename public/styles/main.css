@@ -12,9 +12,20 @@ body {
   background: linear-gradient(to right, #e2e2e2, #c9d6ff);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   flex-direction: column;
   height: 100vh;
+}
+
+a > i:hover {
+  color: #4e00c2;
+  transform: scale(1.5);
+  transition: transform 0.5s;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
 }
 
 .container {
@@ -210,4 +221,23 @@ body {
 
 .container.active .toggle-right {
   transform: translateX(200%);
+}
+
+footer {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  font-size: 1.1rem;
+  justify-content: space-around;
+  color: #333;
+}
+
+footer > img {
+  height: 50px;
+  width: 50px;
+  cursor: pointer;
+}
+
+footer > img:hover {
+  content: url("/images/logo2.png");
 }
