@@ -1,0 +1,62 @@
+<%- include('partials/header.ejs') %>
+
+<div class="container" id="container">
+  <div class="form-container sign-up">
+    <form method="post" action="/forgot">
+      <h1>Change Password</h1>
+      <input
+        type="password"
+        placeholder="New Password"
+        name="password"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Confirm Password"
+        name="password"
+        required
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+  <div class="form-container sign-in">
+    <form>
+      <h1>Verify Yourself</h1>
+      <input type="email" placeholder="Email" name="email" required />
+      <select name="sec_ques" required>
+        <option value="" disabled selected hidden>
+          Please Select your Security Question?
+        </option>
+        <option value="Mother Name">What is your Mother's Name</option>
+        <option value="Pet Name">What is your First Pet's Name</option>
+        <option value="Birth City">
+          What is the name of city where you Born
+        </option>
+      </select>
+      <input
+        type="text"
+        placeholder="Enter the Security Answer"
+        name="sec_ans"
+        required
+      />
+      <button>Verify</button>
+    </form>
+  </div>
+  <div class="toggle-container">
+    <div class="toggle">
+      <div class="toggle-panel toggle-left">
+        <h1>Forgot Password</h1>
+        <p>Please Register a New Password</p>
+      </div>
+      <div class="toggle-panel toggle-right">
+        <h1>Forgot Password</h1>
+        <p>
+          Verify Yourself by entering your registered Email ans Security
+          Question and Answer
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer.ejs') %>
