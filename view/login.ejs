@@ -48,6 +48,9 @@
         <h1>Hello, Quizerz!</h1>
         <p>Register with your personal details to start attempting quiz</p>
         <button class="hidden" id="register">Sign Up</button>
+        <% if (locals.error) { %>
+        <p class="red"><%= error %></p>
+        <% } %>
       </div>
     </div>
   </div>

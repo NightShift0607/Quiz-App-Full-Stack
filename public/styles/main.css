@@ -241,3 +241,7 @@ footer > img {
 footer > img:hover {
   content: url("/images/logo2.png");
 }
+
+.red {
+  color: red;
+}
