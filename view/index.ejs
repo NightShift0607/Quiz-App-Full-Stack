@@ -1,0 +1,46 @@
+<%- include('partials/header.ejs') %>
+
+<div class="container" id="quizContainer">
+  <div class="head">
+    <h3>Hello <%= user.name %></h3>
+    <button id="openScorecard">Scorecard</button>
+    <div class="popup" id="popup">
+      <h2>Scorecard</h2>
+      <% for( let i = 0; i < subjects.length; i++ ) { %>
+      <p><%= subjects[i].sub_name %>: <%= locals.Score ? Score : "0" %></p>
+      <% } %>
+      <button id="closeScorecard">Ok</button>
+    </div>
+  </div>
+  <div class="quizSelect">
+    <form action="/quiz" method="post">
+      <h3>Please Select The Subject of Quiz you want to Take.</h3>
+      <select name="sub_id" required>
+        <option value="" disabled selected hidden>Subjects</option>
+        <% for( let i = 0; i < subjects.length; i++ ) { %>
+        <option value="<%= subjects[i].id %>">
+          <%= subjects[i].sub_name %>
+        </option>
+        <% } %>
+      </select>
+      <button type="submit">Take a Quiz</button>
+    </form>
+  </div>
+  <a href="/logout"><button>Logout</button></a>
+</div>
+
+<script>
+  const popup = document.getElementById("popup");
+  const openScorecardBtn = document.getElementById("openScorecard");
+  const closeScorecardBtn = document.getElementById("closeScorecard");
+
+  openScorecardBtn.addEventListener("click", () => {
+    popup.classList.add("open-popup");
+  });
+
+  closeScorecardBtn.addEventListener("click", () => {
+    popup.classList.remove("open-popup");
+  });
+</script>
+
+<%- include('partials/footer.ejs') %>

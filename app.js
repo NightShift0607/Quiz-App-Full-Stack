@@ -9,8 +9,7 @@ const app = express();
 const port = 3000;
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
-var users = [];
-var user;
+const userDetail = [];
 
 const db = new pg.Client({
   user: "postgres",
@@ -33,9 +32,27 @@ async function chkUser(email) {
   }
 }
 
-// Login Page Route
-app.get("/", (req, res) => {
-  res.render(__dirname + "/view/login.ejs");
+// Function to get subjects
+async function getSubjects() {
+  const result = await db.query("SELECT * FROM subjects;");
+  var subjects = [];
+  result.rows.forEach((subject) => {
+    subjects.push(subject);
+  });
+  return subjects;
+}
+
+// Start Page Route
+app.get("/", async (req, res) => {
+  const subjects = await getSubjects();
+  if (userDetail.length === 0) {
+    res.render(__dirname + "/view/login.ejs");
+  } else {
+    res.render(__dirname + "/view/index.ejs", {
+      subjects: subjects,
+      user: userDetail[0],
+    });
+  }
 });
 
 // Signup Page Route
@@ -66,14 +83,20 @@ app.post("/signup", async (req, res) => {
 
 // Login Page Route
 app.post("/login", async (req, res) => {
+  const subjects = await getSubjects();
   try {
-    const result = await db.query(
-      "SELECT password FROM users WHERE email = ($1);",
-      [req.body.email]
-    );
+    const result = await db.query("SELECT * FROM users WHERE email = ($1);", [
+      req.body.email,
+    ]);
     let password = result.rows[0].password;
     if (password === req.body.password) {
-      res.render(__dirname + "/view/index.ejs");
+      result.rows.forEach((user) => {
+        userDetail.push(user);
+      });
+      res.render(__dirname + "/view/index.ejs", {
+        subjects: subjects,
+        user: userDetail[0],
+      });
     } else {
       res.render(__dirname + "/view/login.ejs", {
         error: "Entered Password or Email is Incorrect",
@@ -91,7 +114,6 @@ app.get("/forgot", (req, res) => {
 
 // Verify for forgot password route
 app.post("/verify", async (req, res) => {
-  // console.log(req.body);
   const result = await db.query(
     "SELECT sec_ques,sec_ans FROM users WHERE email = ($1);",
     [req.body.email]
@@ -131,13 +153,22 @@ app.post("/forgot", async (req, res) => {
 });
 
 // Home Page Route
-app.get("/home", (req, res) => {
-  res.render(__dirname + "/view/index.ejs");
+app.get("/home", async (req, res) => {
+  const subjects = await getSubjects();
+  res.render(__dirname + "/view/index.ejs", {
+    subjects: subjects,
+    user: userDetail[0],
+  });
 });
 
 // Quiz Page Route
-app.get("/quiz", (req, res) => {
+app.post("/quiz", (req, res) => {
   res.render(__dirname + "/view/quiz.ejs");
+});
+
+app.get("/logout", (req, res) => {
+  userDetail.pop();
+  res.render(__dirname + "/view/login.ejs");
 });
 
 app.listen(port, () => {
