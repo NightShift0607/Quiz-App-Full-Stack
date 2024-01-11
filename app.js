@@ -89,6 +89,47 @@ app.get("/forgot", (req, res) => {
   res.render(__dirname + "/view/forgot.ejs");
 });
 
+// Verify for forgot password route
+app.post("/verify", async (req, res) => {
+  // console.log(req.body);
+  const result = await db.query(
+    "SELECT sec_ques,sec_ans FROM users WHERE email = ($1);",
+    [req.body.email]
+  );
+  if (
+    result.rows[0].sec_ques === req.body.sec_ques &&
+    result.rows[0].sec_ans === req.body.sec_ans
+  ) {
+    res.render(__dirname + "/view/forgot.ejs", {
+      email: req.body.email,
+    });
+  } else {
+    res.render(__dirname + "/view/forgot.ejs", {
+      error: "Email or Security Question or Answer is incorrect.",
+    });
+  }
+});
+
+// Change Password Route
+app.post("/forgot", async (req, res) => {
+  if (req.body.newPassword === req.body.cnfPassword) {
+    try {
+      await db.query("UPDATE users SET password = ($1) WHERE email = ($2)", [
+        req.body.newPassword,
+        req.body.email,
+      ]);
+      res.render(__dirname + "/view/login.ejs");
+    } catch (error) {
+      console.log(error);
+    }
+  } else {
+    res.render(__dirname + "/view/forgot.ejs", {
+      email: req.body.email,
+      error: "Both The New Password and Confirm Password Must Match",
+    });
+  }
+});
+
 // Home Page Route
 app.get("/home", (req, res) => {
   res.render(__dirname + "/view/index.ejs");

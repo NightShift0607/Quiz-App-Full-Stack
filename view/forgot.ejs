@@ -1,26 +1,29 @@
 <%- include('partials/header.ejs') %>
 
 <div class="container" id="container">
-  <div class="form-container sign-up">
+  <% if (locals.email) { %>
+  <div class="form-container sign-in">
     <form method="post" action="/forgot">
       <h1>Change Password</h1>
       <input
         type="password"
         placeholder="New Password"
-        name="password"
+        name="newPassword"
         required
       />
       <input
         type="password"
         placeholder="Confirm Password"
-        name="password"
+        name="cnfPassword"
         required
       />
+      <input type="hidden" name="email" value="<%= email %>" />
       <button type="submit">Sign Up</button>
     </form>
   </div>
+  <% } else { %>
   <div class="form-container sign-in">
-    <form>
+    <form method="post" action="/verify">
       <h1>Verify Yourself</h1>
       <input type="email" placeholder="Email" name="email" required />
       <select name="sec_ques" required>
@@ -39,22 +42,32 @@
         name="sec_ans"
         required
       />
-      <button>Verify</button>
+      <button type="submit">Verify</button>
     </form>
   </div>
+  <% } %>
   <div class="toggle-container">
     <div class="toggle">
-      <div class="toggle-panel toggle-left">
+      <% if (locals.email) { %>
+      <div class="toggle-panel toggle-right">
         <h1>Forgot Password</h1>
         <p>Please Register a New Password</p>
+        <% if (locals.error) { %>
+        <p class="red"><%= error %></p>
+        <% } %>
       </div>
+      <% } else { %>
       <div class="toggle-panel toggle-right">
         <h1>Forgot Password</h1>
         <p>
           Verify Yourself by entering your registered Email ans Security
           Question and Answer
         </p>
+        <% if (locals.error) { %>
+        <p class="red"><%= error %></p>
+        <% } %>
       </div>
+      <% } %>
     </div>
   </div>
 </div>
