@@ -1,0 +1,116 @@
+<%- include('partials/header.ejs') %>
+
+<div class="container" id="quiz2Container">
+  <h2 class="question" id="ques"></h2>
+  <div class="options" id="opt"></div>
+  <button id="btn">NEXT</button>
+  <p id="score">Score: 0</p>
+</div>
+
+<script>
+        var currQuestion = 0;
+        var score = 0;
+        var Questions = <%- JSON.stringify(quesData) %>;
+
+        // Function to load question in Quiz division
+      function loadQues() {
+          const question = document.querySelector("#ques")
+          const opt = document.getElementById("opt")
+
+          question.textContent = Questions[currQuestion].ques;
+          opt.innerHTML = ""
+
+          for (let i = 0; i < 4; i++) {
+              const choicesdiv = document.createElement("div");
+              const choice = document.createElement("input");
+              const choiceLabel = document.createElement("label");
+
+              choice.type = "radio";
+              choice.name = "answer";
+              choice.value = i+1;
+              choice.classList.add("inp");
+              choice.id = `opt${i+1}`;
+
+              choiceLabel.setAttribute("for", `opt${i+1}`);
+              choiceLabel.classList.add("lab");
+
+              choiceLabel.innerHTML = Questions[currQuestion][`opt${i+1}`];
+
+              choicesdiv.id = `select${i+1}`;
+              choicesdiv.classList.add("select");
+
+              choicesdiv.appendChild(choice);
+              choicesdiv.appendChild(choiceLabel);
+              opt.appendChild(choicesdiv);
+          }
+          addListner();
+      }
+
+      // Function Call
+      loadQues();
+
+      // function to load score every time an option is selected
+  function loadScore() {
+      const Score = document.querySelector("#score");
+      Score.innerHTML = `Score: ${score}`;
+    }
+
+    // function to load total score after quiz completion
+    function loadTotalScore() {
+      const totalScore = document.getElementById("score");
+      totalScore.textContent = `Hello ${nam}! Your test score is ${score} out of ${Questions.length}`;
+    }
+
+    // function load next question in quiz division
+    function nextQuestion() {
+      if (currQuestion < Questions.length - 1) {
+        currQuestion++;
+        loadQues();
+      } else {
+        document.getElementById("opt").remove();
+        document.getElementById("ques").remove();
+        document.getElementById("btn").remove();
+        loadTotalScore();
+      }
+    }
+
+    // EventListener to click and calling function nextQuestion()
+    document.querySelector("#btn").addEventListener("click", nextQuestion);
+
+      // function to check answer inputed answer
+    function checkAns() {
+        var selectedAns = document.querySelector(
+          'input[name="answer"]:checked'
+        ).value;
+        var selInt = parseInt(selectedAns);
+        for (
+          let i = 0;
+          i < document.querySelectorAll("input[type='radio']").length;
+          i++
+        ) {
+          if (i+1 != selInt) {
+            document.querySelectorAll("input[type='radio']")[i].disabled = true;
+          }
+        }
+        var sel = "#select" + selectedAns;
+        var op = Questions[currQuestion].c_opt;
+        var sel2 = "#select" + op;
+
+        if (Questions[currQuestion].c_opt === selInt) {
+          score++;
+          document.querySelector(sel).classList.add("green");
+        } else {
+          document.querySelector(sel).classList.add("red");
+          document.querySelector(sel2).classList.add("green");
+        }
+        loadScore();
+      }
+
+      function addListner(){
+        for (let i = 0; i < document.querySelectorAll(".inp").length; i++) {
+            document.querySelectorAll("input[type='radio']")[i].addEventListener("click", checkAns);
+        }
+      }
+</script>
+
+<%- include('partials/footer.ejs') %>

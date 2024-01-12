@@ -42,6 +42,19 @@ async function getSubjects() {
   return subjects;
 }
 
+// Function to get question
+async function getQuestions(sub_id) {
+  const result = await db.query(
+    "SELECT * FROM questions WHERE sub_id = ($1);",
+    [sub_id]
+  );
+  let questions = [];
+  result.rows.forEach((question) => {
+    questions.push(question);
+  });
+  return questions;
+}
+
 // Start Page Route
 app.get("/", async (req, res) => {
   const subjects = await getSubjects();
@@ -152,7 +165,7 @@ app.post("/forgot", async (req, res) => {
   }
 });
 
-// Home Page Route
+// Home Page Route  To be Deleted
 app.get("/home", async (req, res) => {
   const subjects = await getSubjects();
   res.render(__dirname + "/view/index.ejs", {
@@ -162,8 +175,17 @@ app.get("/home", async (req, res) => {
 });
 
 // Quiz Page Route
-app.post("/quiz", (req, res) => {
-  res.render(__dirname + "/view/quiz.ejs");
+app.post("/quiz", async (req, res) => {
+  if (userDetail.length === 0) {
+    res.render(__dirname + "/view/login.ejs");
+  } else {
+    const sub_id = req.body.sub_id;
+    const quesData = await getQuestions(sub_id);
+    res.render(__dirname + "/view/quiz.ejs", {
+      quesData: quesData,
+      user: userDetail[0],
+    });
+  }
 });
 
 app.get("/logout", (req, res) => {
