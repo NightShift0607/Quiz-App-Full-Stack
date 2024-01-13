@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
+import { get } from "http";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -34,7 +35,10 @@ async function chkUser(email) {
 
 // Function to get subjects
 async function getSubjects() {
-  const result = await db.query("SELECT * FROM subjects;");
+  const result = await db.query(
+    "SELECT subjects.id,sub_name,score FROM max_score JOIN subjects ON subjects.id = max_score.sub_id WHERE user_id = ($1);",
+    [userDetail[0].id]
+  );
   var subjects = [];
   result.rows.forEach((subject) => {
     subjects.push(subject);
@@ -57,10 +61,10 @@ async function getQuestions(sub_id) {
 
 // Start Page Route
 app.get("/", async (req, res) => {
-  const subjects = await getSubjects();
   if (userDetail.length === 0) {
     res.render(__dirname + "/view/login.ejs");
   } else {
+    const subjects = await getSubjects();
     res.render(__dirname + "/view/index.ejs", {
       subjects: subjects,
       user: userDetail[0],
@@ -77,8 +81,8 @@ app.post("/signup", async (req, res) => {
     });
   } else {
     try {
-      await db.query(
-        "INSERT INTO users (name, email, password, sec_ques, sec_ans) VALUES ($1,$2,$3,$4,$5)",
+      const result = await db.query(
+        "INSERT INTO users (name, email, password, sec_ques, sec_ans) VALUES ($1,$2,$3,$4,$5) RETURNING *",
         [
           req.body.name,
           req.body.email,
@@ -86,6 +90,11 @@ app.post("/signup", async (req, res) => {
           req.body.sec_ques,
           req.body.sec_ans,
         ]
+      );
+      let id = result.rows[0].id;
+      await db.query(
+        "INSERT INTO max_score (score, user_id, sub_id) VALUES ($1,$2,$3),($4,$5,$6),($7,$8,$9),($10,$11,$12),($13,$14,$15)",
+        [0, id, 1, 0, id, 2, 0, id, 3, 0, id, 4, 0, id, 5]
       );
       res.render(__dirname + "/view/login.ejs");
     } catch (error) {
@@ -96,7 +105,6 @@ app.post("/signup", async (req, res) => {
 
 // Login Page Route
 app.post("/login", async (req, res) => {
-  const subjects = await getSubjects();
   try {
     const result = await db.query("SELECT * FROM users WHERE email = ($1);", [
       req.body.email,
@@ -106,6 +114,7 @@ app.post("/login", async (req, res) => {
       result.rows.forEach((user) => {
         userDetail.push(user);
       });
+      const subjects = await getSubjects();
       res.render(__dirname + "/view/index.ejs", {
         subjects: subjects,
         user: userDetail[0],
@@ -165,15 +174,6 @@ app.post("/forgot", async (req, res) => {
   }
 });
 
-// Home Page Route  To be Deleted
-app.get("/home", async (req, res) => {
-  const subjects = await getSubjects();
-  res.render(__dirname + "/view/index.ejs", {
-    subjects: subjects,
-    user: userDetail[0],
-  });
-});
-
 // Quiz Page Route
 app.post("/quiz", async (req, res) => {
   if (userDetail.length === 0) {
@@ -186,6 +186,28 @@ app.post("/quiz", async (req, res) => {
       user: userDetail[0],
     });
   }
+});
+
+// Save Score Route
+app.post("/score", async (req, res) => {
+  const newScore = parseInt(req.body.score);
+  const sub_id = parseInt(req.body.sub_id);
+  const result = await db.query(
+    "SELECT score FROM max_score WHERE user_id = ($1) AND sub_id = ($2);",
+    [userDetail[0].id, sub_id]
+  );
+  const oldScore = result.rows[0].score;
+  if (newScore > oldScore) {
+    await db.query(
+      "UPDATE max_score SET score = ($1) WHERE user_id = ($2) AND sub_id = ($3);",
+      [newScore, userDetail[0].id, sub_id]
+    );
+  }
+  const subjects = await getSubjects();
+  res.render(__dirname + "/view/index.ejs", {
+    subjects: subjects,
+    user: userDetail[0],
+  });
 });
 
 app.get("/logout", (req, res) => {

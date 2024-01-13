@@ -5,6 +5,16 @@
   <div class="options" id="opt"></div>
   <button id="btn">NEXT</button>
   <p id="score">Score: 0</p>
+  <form action="/score" method="post">
+    <input
+      type="number"
+      value="<%= quesData[0].sub_id %>"
+      name="sub_id"
+      hidden
+    />
+    <input type="number" value="" name="score" id="newScore" hidden />
+    <button type="submit" hidden id="save">Save Score</button>
+  </form>
 </div>
 
 <script>
@@ -57,8 +67,9 @@
 
     // function to load total score after quiz completion
     function loadTotalScore() {
-      const totalScore = document.getElementById("score");
-      totalScore.textContent = `Hello ${nam}! Your test score is ${score} out of ${Questions.length}`;
+      document.getElementById("newScore").setAttribute("value",`${score}`);
+      const totalScore = document.querySelector("#score");
+      totalScore.innerHTML = `Hello ${"<%= user.name %>"}! Your test score is ${score} out of ${Questions.length}`;
     }
 
     // function load next question in quiz division
@@ -70,6 +81,7 @@
         document.getElementById("opt").remove();
         document.getElementById("ques").remove();
         document.getElementById("btn").remove();
+        document.getElementById("save").removeAttribute("hidden");
         loadTotalScore();
       }
     }

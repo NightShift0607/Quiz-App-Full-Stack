@@ -312,3 +312,7 @@ footer > img:hover {
   display: flex;
   align-items: center;
 }
+
+#score {
+  font-size: 20px;
+}
